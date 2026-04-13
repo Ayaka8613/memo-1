@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>メモ詳細</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<h1 class="title1">メモ詳細</h1>
+<div class="memo-show">
+    <h2 class="memo-title" th:text="${#strings.isEmpty(memo.title) ? 'タイトル' : memo.title}"></h2>
+    <div class="show-row">
+        <div class="memo-date">
+            <span th:text="${#temporals.format(memo.createdAt,'yyyy/MM/dd HH:mm')}"></span>
+        </div>
+        <div class="memo-tag">
+            <span class="list-title">タグ</span>
+            <span th:if="${#lists.isEmpty(memo.tags)}" class="tag-badge">なし</span>
+            <span th:each="t : ${memo.tags}" class="tag-badge" th:classappend="' tag-' + ${t.name}" th:text="${t.name}"></span>
+        </div>
+    </div>
+    <div class="memo-content-show">
+        <textarea class="memo-text" readonly th:text="${memo.content}"></textarea>
+    </div>
+    <div class="back-class">
+        <a th:href="@{/}" class="back-btn">戻る</a>
+    </div>
+</div>
+<script>
+    function getTagsFromDOM(container) {
+        return Array.from(container.querySelectorAll(".tag-badge"))
+        .map(el => ({ name: el.textContent.trim() }));
+    }
+    function renderTags(container, tags, maxVisible = 3) {
+        container.innerHTML = "";
+        tags.slice(0, maxVisible).forEach(tag => {
+            const badge = document.createElement("span");
+            badge.className = "tag-badge";
+            badge.textContent = tag.name;
+            container.appendChild(badge);
+        });
+        if (tags.length > maxVisible) {
+            const more = document.createElement("span");
+            more.className = "tag-badge more-badge";
+            more.textContent = `+${tags.length - maxVisible}`;
+            container.appendChild(more);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".selected-tags").forEach(container => {
+            const tags = getTagsFromDOM(container);
+            renderTags(container, tags);
+        });
+    });
+</script>
+
+</body>
+</html>

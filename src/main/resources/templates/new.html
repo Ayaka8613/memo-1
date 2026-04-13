@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>新規登録</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<form th:action="@{/memo}" th:object="${memo}" method="post">
+    <h1 class="title1">メモ登録</h1>
+    <div class="row">
+        <div class="class1">
+            <label>タイトル</label>
+            <span class="required">必須</span>
+        </div>
+        <input type="text" th:field="*{title}" id="title-input"  maxlength="100" class="required-input" required>
+        <div th:if="${#fields.hasErrors('title')}" class="error">
+            <p th:errors="*{title}"></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="tag-list">
+            <label>タグ選択</label>
+            <div id="new-tag-toggle" class="tag-toggle" onclick="toggleNewTagList()">
+                <div id="new-selected-tags" class="selected-tags"></div>
+            </div>
+            <div id="new-tagbox" class="tagbox hidden">
+                <div class="tag-li" th:each="tag : ${allTags}">
+                    <label>
+                        <input type="checkbox" name="tagIds" th:value="${tag.id}" onchange="updateNewSelectedTags()">
+                        <span class="tag-badge" th:text="${tag.name}"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="class1">
+            <label>メモ</label>
+            <span class="required">必須</span>
+        </div>
+        <textarea id="content-input" th:field="*{content}" class="required-input" required></textarea>
+        <div id="content-count" class="count"></div>
+    </div>
+    <div class="button-list">
+        <button class="cansel-btn" type="button" onclick="window.location.href='/memo'">キャンセル</button>
+        <button class="finish-btn" type="submit">登録</button>
+    </div>
+</form>
+<script>
+    function updateNewSelectedTags() {
+        const selectedArea = document.getElementById("new-selected-tags");
+        selectedArea.innerHTML = "";
+        const checkboxes = document.querySelectorAll("input[name='tagIds']:checked");
+        checkboxes.forEach(cb => {
+            const tagName = cb.nextElementSibling.textContent;
+            const tagId = cb.value;
+            const badge = document.createElement("span");
+            badge.classList.add("tag-badge");
+            badge.classList.add("tag-" + tagName);
+            badge.innerHTML = `${tagName} <span class="tag-remove" data-id="${tagId}">×</span>`;
+            selectedArea.appendChild(badge);
+        });
+    }
+    function toggleNewTagList() {
+        const list = document.querySelector("#new-tagbox");
+        const toggle = document.querySelector("#new-tag-toggle");
+        list.classList.toggle("hidden");
+        toggle.classList.toggle("open");
+    }
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("tag-remove")) {
+            const id = e.target.dataset.id;
+            document.querySelector(`input[name='tagIds'][value='${id}']`).checked = false;
+            updateNewSelectedTags();
+        }
+    });
+</script>
+<script>
+    document.getElementById("title-input").addEventListener("input", function() {
+        const max = 100;
+        if (this.value.length > max) {
+            this.value = this.value.substring(0, max);
+        }
+    });
+</script>
+<script>
+    document.getElementById("content-input").addEventListener("input", function() {
+    document.getElementById("content-count").textContent = this.value.length + "文字";
+ });
+</script>
+
+</body>
+</html>

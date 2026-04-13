@@ -1,0 +1,617 @@
+body{
+	font-size: 15px;
+	font-family: sans-serif;
+	background-color: #fff;
+	color: #000;
+	margin: 20px 20px;
+	padding: 0 15px;
+}
+a{
+	text-decoration: none;
+	color: #000;
+}
+a:hover{
+	color: #505050;
+}
+th{
+	margin: 10px 10px;
+	padding: 15px 10px;
+}
+tr{
+	margin: 10px 5px;
+}
+td{
+	margin: 10px 0;
+}
+label{
+	display: inline-block;
+	align-items: center;
+	margin: 0 15px;
+}
+i{
+	display: inline-block;
+	margin: 5px;
+}
+p{
+	font-size: 14px;
+	margin-bottom: 14px;
+	border: 0.9px solid #000;
+}
+button{
+	margin: 10px 15px;
+	padding: 15px 35px;
+	cursor: pointer;
+	background-color: #fff;
+	border-radius: 7px;
+	color: #000;
+}
+.menu-button{
+	border-radius: 0;
+}
+textarea,
+input,
+.tag-toggle{
+	border-radius: 9px;
+}
+textarea{
+	width: 85%;
+	margin: 10px 15px;
+	padding: 5px 15px 100px 15px;
+	border: 0.9px solid #000;
+	resize: none;
+	box-sizing: border-box;
+}
+input[type="text"]{
+	width: 85%;
+	margin: 10px 15px;
+	padding: 25px 15px;
+	border: 0.9px solid #000;
+	resize: none;
+	box-sizing: border-box;
+}
+.title1{
+	position: relative;
+	display: flex;
+	align-items: center;
+	font-size: 21px;
+	padding: 10px;
+	margin: 10px 5px;
+}
+.title1::before{
+	content: '';
+	width: 3px;
+	height: 35px;
+	margin-right: 10px;
+	display: block;
+	background-color: #000;
+}
+/*edit*/
+.error{
+	color: #c9171e;
+	margin: 3px 0 0;
+	font-size: 15px;
+}
+.tag-list{
+	margin: 10px 0;
+	padding: 5px 0;
+}
+.selected-tags{
+	display: flex;
+    margin-bottom: 5px;
+    min-height: 20px;
+	max-width: 100%;
+	padding: 5px 10px;
+	overflow-x: auto;
+	white-space: nowrap;
+}
+.tag-toggle{
+	position: relative;
+    padding: 15px 0;
+    margin: 10px 15px;
+	width: 100%;
+	max-width: 450px;
+	background-color: #fff;
+    border: 0.9px solid #000;
+    cursor:pointer;
+	overflow: hidden;
+	box-sizing: border-box;
+	border-radius: 0px;
+}
+.tag-toggle::after{
+	content: "";
+	position: absolute;
+	right: 11px;
+	top: 35px;
+	transform: translateY(-50%);
+	border-width: 6px 5px 0 5px;
+	border-style: solid;
+	border-color: #000 transparent transparent transparent;
+}
+.tag-toggle.open::after{
+	border-width: 0 5px 6px 5px;
+	border-color: transparent transparent #000 transparent;
+}
+.tag-li,
+.edit-tag-li,
+.new-tag-li{
+	margin: 2px 5px;
+	padding: 10px 0;
+	border-bottom: 0.9px solid #000;
+	width: 90%;
+}
+.tag-li label{
+	display: block;
+	align-items: center;
+	cursor: pointer;
+}
+.tagbox{
+    padding: 5px 10px;
+    margin: 10px 10px;
+	width: 100%;
+	max-width: 450px;
+	position: absolute;
+	z-index: 90;
+	background-color: #fff;
+	border: 0.9px solid #000;
+	border-radius: 5px;
+	box-shadow:  5px 5px 10px 0 #c7c7c7;
+}
+.required{
+	background-color: #e9474d;
+	color: #fff;
+	border-radius: 5px;
+	padding: 5px 10px;
+	margin: 10px 10px;
+}
+.required-input:invalid{
+	background-color: #ea617c;
+}
+.tag-badge{
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 0 5px;
+    border-radius: 12px;
+}
+.tag-close{
+	cursor:pointer;
+	font-weight: bold;
+	padding: 3px;
+	color: #fff;
+}
+
+/*index*/
+.toolbar{
+	display: flex;
+	width: 100%;
+	margin: 10px 5px;
+	padding: 5px 10px;
+}
+.toolbar input[type="text"]{
+	width: 370px;
+	margin: 5px 10px;
+	padding: 5px 10px;
+	border: 0.9px solid #000;
+}
+input[type="date"]{
+	width: 65%;
+	padding: 15px 15px;
+	margin: 5px 0;
+	border: 0.9px solid #000;
+	border-radius: 0px;
+}
+.toolbar form{
+	display: flex;
+	width: auto;
+}
+.new-btn,
+.back-btn{
+	margin: 10px 25px;
+	padding: 10px 25px;
+	width: 90px;
+	cursor: pointer;
+	color: #000;
+	border-radius: 35px;
+	text-align: center;
+	display: flex;
+	position: relative;
+	background-color: #89ffff;
+	box-shadow:  5px 5px 10px 0 #c7c7c7;
+}
+.new-btn{
+	margin-left: auto;
+	background-color: #7abcff;
+}
+.back-btn{
+	margin: 10px 25px;
+	padding: 10px 40px;
+	width: 45px;
+}
+.new-btn:hover{
+	background-color: #a3ffff;
+	transform: translateY(5px);
+}
+.new-btn i{
+	font-size: 15px;
+	margin: 2px;
+	padding: 2px;
+}
+.button-list{
+	padding: 10px 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.button-list button{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 34px;
+	margin: 10px 25px;
+	padding: 15px 45px;
+}
+.f-s{
+	position: relative;
+	width: 90%;
+}
+.f-s-group{
+	position: absolute;
+	z-index: 90;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+.filter-group{
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	border: 0.9px solid #000;
+	margin: 5px 65px;
+	padding: 10px 10px;
+	width: 55%;
+	background-color: #fff;
+	box-shadow:  5px 5px 10px 0 #c7c7c7;
+}
+.filter-group::before{
+	content: "";
+	position: absolute;
+	left: 550px;
+	top: -7px;
+	border-style: solid;
+	border-width: 0 8px 7px 7px;
+	border-color: transparent transparent #000 transparent;
+}
+.filter-group::after{
+	content: "";
+	position: absolute;
+	left: 551px;
+	top: -6px;
+	border-style: solid;
+	border-width: 0 7px 6px 6px;
+	border-color: transparent transparent #fff transparent;
+}
+.sort-group{
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	border: 0.9px solid #000;
+	background-color: #fff;
+	margin: 5px auto;
+	padding: 10px 25px;
+	width: 30%;
+	box-shadow:  5px 5px 10px 0 #c7c7c7;
+}
+.sort-op{
+	display: flex;
+	width: 55%;
+	margin: 5px auto;
+	padding: 5px 15px;
+}
+.sort-option{
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	margin: 5px;
+	padding: 5px 5px;
+}
+.sort-group::before{
+	content: "";
+	position: absolute;
+	right: 80px;
+	top: -7px;
+	border-style: solid;
+	border-width: 0 9px 7px 7px;
+	border-color: transparent transparent #000 transparent;
+}
+.sort-group::after{
+	content: "";
+	position: absolute;
+	right: 81px;
+	top: -6px;
+	border-style: solid;
+	border-width: 0 8px 6px 6px;
+	border-color: transparent transparent #fff transparent;
+}
+.filter-btn{
+	background-color: #3333ff;
+	color:#fff
+}
+.filter-btn:hover{
+	background-color: #4747ff;
+	transform: translateY(5px);
+}
+.sort-btn{
+	background-color: #0582ff;
+	color:#fff;
+}
+.sort-btn:hover{
+	background-color: #47a3ff;
+	transform: translateY(5px);
+}
+.search-btn{
+	background-color: #23ffff;
+	color:#fff;
+}
+.search-btn:hover{
+	background-color: #93ffff;
+	transform: translateY(5px);
+}
+.row{
+	display: flex;
+	flex-direction: column;
+	margin: 10px 0;
+}
+.menu{
+	position: absolute;
+	background-color: #fff;
+	top: 12px;
+	right: 0;
+	padding: 5px;
+	margin: 5px;
+}
+.menu-btn{
+	background-color: #fff;
+	border: none;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 0 15px;
+	line-height: 0.9;
+}
+.menu-btn,
+.menu-button{
+	border-radius: 0;
+}
+.menu-content{
+	position: absolute;
+	right: 0;
+	top: 30px;
+	display: flex;
+	flex-direction: column;
+	text-align: left;
+	margin: 10px 0;
+	padding: 10px 0;
+	border: 0.9px solid #000;
+	background-color: #fff;
+}
+.menu-content::before{
+	content: "";
+	position: absolute;
+	right: 32px;
+	top: -7px;
+	border-style: solid;
+	border-width: 0 8px 7px 7px;
+	border-color: transparent transparent #000 transparent;
+}
+.menu-content::after{
+	content: "";
+	position: absolute;
+	right: 33px;
+	top: -6px;
+	border-style: solid;
+	border-width: 0 7px 6px 6px;
+	border-color: transparent transparent #fff transparent;
+}
+.menu-content.hidden {
+    display: none !important;
+}
+.menu-content form{
+	margin-top: 0;
+	margin-left: 0;
+	padding-top: 0;
+}
+.menu-content button{
+	width: 100%;
+	white-space: nowrap;
+	margin: 0;
+	padding-top: 0;
+	border: none;
+}
+.list-title{
+	background-color: #80c8ef;
+	color:#fff;
+}
+.memo-grid{
+	display: flex;
+	margin: 20px 5px;
+	padding: 25px 10px;
+	flex-wrap: wrap;
+	box-sizing: border-box;
+}
+.memo-card{
+	position: relative;
+	border: 0.9px solid #cacaca;
+	border-radius: 5px;
+	margin: 15px 5px;
+	padding: 5px 10px;
+	width: calc(34% - 20px);
+	box-sizing: border-box;
+	box-shadow:  5px 5px 10px 0 #454545;
+}
+.memo-preview{
+	flex-wrap: wrap;
+	white-space: normal;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	margin: 20px;
+	padding: 20px 0;
+}
+.memo-list{
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.memo-tags{
+	display: flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	gap: 6px;
+}
+.title{
+	padding-top: 20px;
+	font-size: 16px;
+	margin: 5px 15px;
+	flex-wrap: wrap;
+	white-space: normal;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+.list-title{
+	border: 0.9px solid #000;
+	margin: 5px 5px;
+	padding: 5px 15px;
+	flex-shrink: 0;
+	width: 60px;
+}
+.group{
+	display: flex;
+	align-items: center;
+	margin: 5px 25px;
+	width: 90%;
+}
+.form-group{
+	margin: 5px 20px;
+	width: 80%;
+}
+/*show*/
+.show-row{
+	display: flex;
+	align-items: center;
+}
+.memo-show{
+	margin: 0 15px;
+}
+.memo-title,
+.memo-date,
+.memo-tag{
+	margin: 15px;
+}
+.memo-content-show{
+	margin: 15px 0;
+	padding: 15px 0;
+}
+.back-btn:hover{
+	background-color: #a3ffff;
+	transform: translateY(5px);
+}
+.back-btn::before{
+	content: "";
+	position: absolute;
+	width: 15px;
+	height: 15px;
+	top: 14px;
+	right: 10px;
+	border-radius: 50%;
+	border: 0.9px solid #656565;
+	box-sizing: border-box;
+}
+.back-btn::after{
+	content: "";
+	position: absolute;
+	box-sizing: border-box;
+	width: 5px;
+	height: 5px;
+	right: 16px;
+	top: 19px;
+	border-top: 1px solid #656565;
+	border-right: 1px solid #656565;
+	transform: rotate(45deg);
+}
+.back-class{
+	margin: 10px auto;
+}
+.cansel-btn{
+	background-color: #a0a0a0;
+	color:#fff;
+}
+.cansel-btn:hover{
+	background-color: #616161;
+	transform: translateY(5px);
+}
+.finish-btn{
+	background-color: #008bc3;
+	color:#fff;
+}
+.finish-btn:hover{
+	background-color: #7bcbdc;
+	transform: translateY(5px);
+}
+/*タグ用*/
+.tag-仕事{
+	background-color: #8000ff;
+	color:#fff;
+}
+.tag-タスク{
+	background-color: #2d2dff;
+	color:#fff;
+}
+.tag-報告書{
+	background-color: #2e96ff;
+	color:#fff;
+}
+.tag-勉強法{
+	background-color: #1a1aff;
+	color:#fff;
+}
+.tag-買い物{
+	background-color: #ff1aec;
+	color:#fff;
+}
+.tag-趣味{
+	background-color: #e62ed6;
+	color:#fff;
+}
+.tag-レシピ{
+	background-color: #24b36b;
+	color:#fff;
+}
+.tag-健康{
+	background-color: #00ffd5;
+	color:#fff;
+}
+.tag-旅行{
+	background-color: #00479d;
+	color:#fff;
+}
+.tag-映画{
+	background-color: #e49ec4;
+	color:#fff;
+}
+.tag-音楽{
+	background-color: #b21f71;
+	color:#fff;
+}
+.tag-読書{
+	background-color: #00969f;
+	color:#fff;
+}
+.tag-スポーツ{
+	background-color: #4e67b0;
+	color:#fff;
+}
+.tag-その他{
+	background-color: #239dda;
+	color:#fff;
+}
+/*隠す用 いじっちゃダメ*/
+.hidden{
+    display: none;
+}

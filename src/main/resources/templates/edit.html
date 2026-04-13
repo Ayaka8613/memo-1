@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>メモ編集</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+<h1 class="title1">メモ編集</h1>
+<form th:action="@{/memo/{id}/edit(id=${memo.id})}" th:object="${memo}" method="post">
+    <div class="row">
+        <div class="class1">
+            <label>タイトル</label>
+            <span class="required">必須</span>
+        </div>
+        <input type="text" th:field="*{title}" id="title-input"  maxlength="100" class="required-input" required/>
+        <div th:if="${#fields.hasErrors('title')}" class="error">
+            <p th:errors="*{title}"></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="tag-list">
+            <label>タグ選択</label>
+            <div id="edit-tag-toggle" class="tag-toggle" onclick="toggleEditTagList()">
+                <div id="edit-selected-tags" class="selected-tags">
+                    <span th:each="t : ${memo.tags}" class="tag-badge" th:classappend="' tag-' + ${t.name}" th:text="${t.name}"></span>
+                </div>
+            </div>
+            <div id="edit-tagbox" class="tagbox hidden">
+                <div class="edit-tag-li" th:each="tag : ${allTags}">
+                    <label>
+                        <input type="checkbox" name="tagIds" th:value="${tag.id}" th:checked="${memo.tags.contains(tag)}" onchange="updateEditSelectedTags()">
+                        <span th:text="${tag.name}"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="class1">
+            <label>メモ</label>
+            <span class="required">必須</span>
+        </div>
+        <textarea class="required-input" th:field="*{content}" required></textarea>
+    </div>
+    <div class="button-list">
+        <button class="cansel-btn" type="button" onclick="window.location.href='/memo'">キャンセル</button>
+        <button class="finish-btn" type="submit">更新</button>
+    </div>
+</form>
+
+<script>
+    function loadEditSelectedTags() {
+        const selectedArea = document.getElementById("edit-selected-tags");
+        selectedArea.innerHTML = "";
+
+        const checkboxes = document.querySelectorAll("input[name='tagIds']:checked");
+
+        checkboxes.forEach(cb => {
+            const tagName = cb.nextElementSibling.textContent;
+            const tagId = cb.value;
+
+            const badge = document.createElement("span");
+            badge.classList.add("tag-badge");
+            badge.classList.add("tag-" + tagName);
+
+            badge.innerHTML = `${tagName} <span class="tag-remove" data-id="${tagId}">×</span>`;
+            selectedArea.appendChild(badge);
+        });
+    }
+
+    function toggleEditTagList() {
+        const list = document.getElementById("edit-tagbox");
+        const toggle = document.getElementById("edit-tag-toggle");
+        list.classList.toggle("hidden");
+        toggle.classList.toggle("open");
+    }
+
+    function updateEditSelectedTags() {
+        loadEditSelectedTags();
+    }
+
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("tag-remove")) {
+            const id = e.target.dataset.id;
+            document.querySelector(`input[name='tagIds'][value='${id}']`).checked = false;
+            loadEditSelectedTags();
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", loadEditSelectedTags);
+</script>
+<script>
+    document.getElementById("title-input").addEventListener("input", function() {
+        const max = 100;
+        if (this.value.length > max) {
+            this.value = this.value.substring(0, max);
+        }
+     });
+</script>
+<script>
+    document.getElementById("content-input").addEventListener("input", function() {
+    document.getElementById("content-count").textContent = this.value.length + "文字";
+ });
+</script>
+
+
+</body>
+</html>

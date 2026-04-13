@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://kit.fontawesome.com/6cfbf5f560.js" crossorigin="anonymous"></script>
+    <title>Memo App</title>
+</head>
+
+<body>
+<h1 class="title1">メモ一覧</h1>
+<div class="toolbar">
+    <form id="search-form" th:action="@{/search}" method="get">
+        <input type="text" name="keyword" placeholder="検索">
+        <button class="search-btn" type="submit">検索</button>
+    </form>
+    <button class="filter-btn" type="button" onclick="openFilter()">フィルター</button>
+    <button class="sort-btn" type="button" onclick="openSort()">ソート</button>
+    <a class="new-btn" th:href="@{/memo/new}">新規登録<i class="fa-solid fa-circle-plus"></i></a>
+</div>
+<div class="f-s">
+    <div class="f-s-group">
+        <form id="filter-form" action="/search" method="get">
+            <div id="filter-group" class="filter-group hidden">
+                <label>登録日の期間を指定</label>
+                <div class="group">
+                    <div class="form-group">
+                        <label>開始日</label>
+                        <input type="date" name="startDate">
+                    </div>
+                    <span>〜</span>
+                    <div class="form-group">
+                        <label>終了日</label>
+                        <input type="date" name="endDate">
+                        <span>まで</span>
+                    </div>
+                </div>
+                <label>タグを指定</label>
+                <div class="form-group tag-list">
+                    <div id="filter-tag-toggle" class="tag-toggle" onclick="toggleFilterTagList()" placeholder="タグを選択">
+                        <div id="filter-selected-tags" class="selected-tags">
+									<span th:each="t : ${selectedTags}" class="tag-badge" th:classappend="' tag-' + ${t.name}">
+										<span th:text="${t.name}"></span>
+										<span class="tag-close" onclick="removeTagBadge(this)">×</span>
+									</span>
+                        </div>
+                    </div>
+                    <div id="filter-tagbox" class="tagbox hidden">
+                        <div class="tag-li" th:each="tag : ${allTags}">
+                            <label>
+                                <input type="checkbox" name="filterTagIds" th:value="${tag.id}" onchange="updateFilterSelectedTags()">
+                                <span th:text="${tag.name}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="button-list">
+                    <button class="cansel-btn" type="button" onclick="closeFilter()">キャンセル</button>
+                    <button class="finish-btn" type="submit" form="filter-form">完了</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="f-s-group">
+        <form id="sort-form" action="/sort" method="get">
+            <div id="sort-group" class="sort-group hidden">
+                <label>登録日</label>
+                <div class="sort-op">
+                    <div class="sort-option">
+                        <input type="radio" id="sort-asc" name="order" value="asc">
+                        <label for="chose">昇順</label>
+                    </div>
+                    <div class="sort-option">
+                        <input type="radio" id="sort-desc" name="order" value="desc">
+                        <label for="chose">降順</label>
+                    </div>
+                </div>
+                <div class="button-list">
+                    <button class="cansel-btn" type="button" onclick="closeSort()">キャンセル</button>
+                    <button class="finish-btn" type="submit" form="sort-form">完了</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="memo-grid">
+    <div class="memo-card" th:each="memo : ${memos}">
+        <div class="title">
+            <h2>
+                <a th:href="@{'/memo/' + ${memo.id}}"
+                   th:text="${#strings.isEmpty(memo.title) ? 'タイトル' : memo.title}">
+                </a>
+            </h2>
+        </div>
+        <div class="memo-list">
+            <span class="list-title">登録日</span>
+            <span th:text="${#temporals.format(memo.createdAt,'yyyy/MM/dd HH:mm')}"></span>
+        </div>
+        <div class="memo-list">
+            <span class="list-title">タグ</span>
+            <div class="memo-tags">
+                <span th:if="${#lists.isEmpty(memo.tags)}" class="tag-badge">なし</span>
+                <span th:each="t : ${memo.tags}" class="tag-badge" th:classappend="' tag-' + ${t.name}" th:text="${t.name}"></span>
+            </div>
+        </div>
+        <div class="memo-preview" th:text="${#strings.abbreviate(memo.content,50)}"></div>
+        <div class="menu">
+            <button class="menu-btn" onclick="toggleMenu(this)">︙</button>
+            <div class="menu-content hidden">
+                <form th:action="@{'/memo/' + ${memo.id} + '/delete'}" method="post" th:data-title="${memo.title}" onsubmit="return confirmDelete(this)">
+                    <button class="menu-button" type="submit">削除<i class="fa-solid fa-trash"></i></button>
+                </form>
+                <form th:action="@{'/memo/' + ${memo.id} + '/edit'}">
+                    <button class="menu-button" type="submit">編集<i class="fa-solid fa-pen"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function toggleFilterTagList() {
+        document.getElementById("filter-tagbox").classList.toggle("hidden");
+    }
+    function updateFilterSelectedTags() {
+        const selectedArea = document.getElementById("filter-selected-tags");
+        selectedArea.innerHTML = "";
+        const checkboxes = document.querySelectorAll("input[name='filterTagIds']:checked");
+        checkboxes.forEach(cb => {
+            const tagName = cb.nextElementSibling.textContent;
+            const badge = document.createElement("span");
+            badge.className = "tag-badge tag-" + tagName;
+            badge.textContent = tagName;
+            const closeBtn = document.createElement("span");
+            closeBtn.className = "tag-close";
+            closeBtn.textContent = " ×";
+            closeBtn.onclick = () => {
+                cb.checked = false;
+                updateFilterSelectedTags();
+            };
+            badge.appendChild(closeBtn);
+            selectedArea.appendChild(badge);
+        });
+    }
+</script>
+
+<script>
+    function openFilter() {
+        document.getElementById("filter-group").classList.remove("hidden");
+        document.getElementById("sort-group").classList.add("hidden");
+    }
+    function closeFilter() {
+        document.getElementById("filter-group").classList.add("hidden");
+    }
+
+</script>
+<script>
+    function getTagsFromDOM(container) {
+        return Array.from(container.querySelectorAll(".tag-badge"))
+        .map(el => ({ className: el.className,
+                      textContent: el.textContent.trim()
+                  }));
+              }
+              function renderTags(container, tags, maxVisible = 3) {
+                container.innerHTML = "";
+                tags.slice(0, maxVisible).forEach(tag => {
+                    const badge = document.createElement("span");
+                    badge.className = tag.className;
+                    badge.textContent = tag.textContent.trim();
+                    container.appendChild(badge);
+                });
+                if (tags.length > maxVisible) {
+                    const more = document.createElement("span");
+                    more.className = "tag-badge more-badge";
+                    more.textContent = `+${tags.length - maxVisible}`;
+                    container.appendChild(more);
+                }
+            }
+            document.addEventListener("DOMContentLoaded", () => {
+                document.querySelectorAll(".memo-tags").forEach(container => {
+                    const tags = getTagsFromDOM(container);
+                    renderTags(container, tags, 3);
+                });
+            });
+</script>
+
+<script>
+    function removeTagBadge(el) {
+        el.parentElement.remove();
+    }
+
+</script>
+
+<script>
+    function confirmDelete(form) {
+        const title = form.dataset.title || "このメモ";
+        return confirm(title + "を削除しますか？")
+    }
+</script>
+
+<script>
+    function openSort() {
+        document.getElementById("sort-group").classList.remove("hidden");
+        document.getElementById("filter-group").classList.add("hidden");
+    }
+    function closeSort() {
+        document.getElementById("sort-group").classList.add("hidden");
+    }
+</script>
+
+<script>
+    function toggleMenu(btn) {
+        const card = btn.closest(".memo-card");
+        const menu = card.querySelector(".menu-content");
+        document.querySelectorAll(".menu-content").forEach(m => {
+        if (m !== menu) m.classList.add("hidden");
+    });
+    document.querySelectorAll(".menu-btn").forEach(b => {
+        if (b !== btn) b.textContent = "︙";
+    });
+
+    menu.classList.toggle("hidden");
+    btn.textContent = menu.classList.contains("hidden") ? "︙" : "×";
+    }
+</script>
+
+</body>
+</html>
