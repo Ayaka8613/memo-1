@@ -1,4 +1,5 @@
 package com.example.demo.entity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,8 @@ public class Memo {
 
     private LocalDateTime createdAt;
 
-    @Column(name = "update_at")
-    private LocalDateTime updateAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_flag")
     private Boolean deletedFlag = false;
@@ -43,6 +44,34 @@ public class Memo {
     public void onPrePersist() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public Memo(Long id, String title, String content, List<Tag> tags, LocalDateTime createdAt, LocalDateTime updatedAt, Boolean deletedFlag) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.tags = tags;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deletedFlag = deletedFlag;
+    }
+
+    public Memo() {
+    }
+
+    public Memo(Long id, String title, String content) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+    }
+
+    public Memo(Long id, String title, String content, LocalDate createdAt) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt.atStartOfDay();
+    }
+
+
 
     public Long getId() {
         return id;
@@ -79,12 +108,16 @@ public class Memo {
         return createdAt;
     }
 
-    public LocalDateTime getUpdateAt() {
-        return updateAt;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdateAt(LocalDateTime updateAt) {
-        this.updateAt = updateAt;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Boolean getDeletedFlag() {
@@ -94,6 +127,5 @@ public class Memo {
     public void setDeletedFlag(Boolean deletedFlag) {
         this.deletedFlag = deletedFlag;
     }
-
 
 }

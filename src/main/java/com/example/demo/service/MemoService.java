@@ -32,18 +32,17 @@ public class MemoService {
         return memo;
     }
 
-    public void create(Memo memo) {
+    public Memo create(Memo memo) {
         if (memo.getTitle() == null || memo.getTitle().length() > 100) {
             throw new IllegalArgumentException("タイトルは100文字以内で入力してください");
         }
 
-        memo.setUpdateAt(LocalDateTime.now());
+        memo.setUpdatedAt(LocalDateTime.now());
         memo.setDeletedFlag(false);
-        memoRepository.save(memo);
+        return memoRepository.save(memo);
     }
 
-
-    public void update(Long id, String title, String content, List<Long> tagIds) {
+    public Memo update(Long id, String title, String content, LocalDate date) {
         if (title == null || title.length() > 100) {
             throw new IllegalArgumentException("タイトルは100文字以内で入力してください");
         }
@@ -53,14 +52,41 @@ public class MemoService {
 
         memo.setTitle(title);
         memo.setContent(content);
+        memo.setCreatedAt(date.atStartOfDay());
 
-        List<Tag> tags = (tagIds != null)
-                ? tagRepository.findAllById(tagIds)
-                : new ArrayList<>();
+        return memoRepository.save(memo);
+    }
 
+    public Memo updateTags(Long id, List<Long> tagIds) {
+        Memo memo = memoRepository.findById(id).orElseThrow();
+        List<Tag> tags = tagRepository.findAllById(tagIds);
         memo.setTags(tags);
+        return memoRepository.save(memo);
+    }
 
-        memoRepository.save(memo);
+    public List<Memo> filter(String keyword, LocalDate start, String tagName, LocalDate now) {
+
+        List<Memo> memos = memoRepository.findAll();
+
+        if (keyword != null && !keyword.isEmpty()) {
+            memos = memos.stream()
+                    .filter(m -> m.getTitle().contains(keyword) || m.getContent().contains(keyword))
+                    .toList();
+        }
+
+        if (start != null) {
+            memos = memos.stream()
+                    .filter(m -> !m.getCreatedAt().toLocalDate().isBefore(start))
+                    .toList();
+        }
+
+        if (tagName != null && !tagName.isEmpty()) {
+            memos = memos.stream()
+                    .filter(m -> m.getTags().stream().anyMatch(t -> t.getName().equals(tagName)))
+                    .toList();
+        }
+
+        return memos;
     }
 
 
@@ -68,34 +94,6 @@ public class MemoService {
         memoRepository.deleteById(id);
     }
 
-    public List<Memo> filter(String keyword, String startDate, String endDate, List<Long> tagIds) {
-        List<Memo> memos = memoRepository.findAllWithTags();
-
-        if (keyword != null && !keyword.isEmpty()) {
-            memos = memos.stream()
-                    .filter(m -> m.getTitle().contains(keyword) || m.getContent().contains(keyword))
-                    .toList();
-        }
-        if (startDate != null && !startDate.isEmpty()) {
-            memos = memos.stream()
-                    .filter(m -> m.getCreatedAt().toLocalDate().isAfter(LocalDate.parse(startDate).minusDays(1)))
-                    .toList();
-        }
-
-        if (endDate != null && !endDate.isEmpty()) {
-            memos = memos.stream()
-                    .filter(m -> m.getCreatedAt().toLocalDate().isBefore(LocalDate.parse(endDate).plusDays(1)))
-                    .toList();
-        }
-        if (tagIds != null && !tagIds.isEmpty()) {
-            memos = memos.stream()
-                    .filter(m -> tagIds.stream().allMatch(id ->
-                            m.getTags().stream().anyMatch(t -> t.getId().equals(id))
-                    ))
-                    .toList();
-        }
-        return memos;
-    }
 
     public List<Memo> sortAsc() {
         return memoRepository.findAllByOrderByIdAscWithTags();
