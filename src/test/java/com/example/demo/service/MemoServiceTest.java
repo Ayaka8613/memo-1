@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.time.LocalDate;
 
@@ -49,11 +50,31 @@ class MemoServiceTest {
     }
 
     @Test
+    void testFindById_notFound() {
+        when(memoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> {
+            memoService.findById(1L);
+        });
+    }
+
+    @Test
     void testCreate_invalidTitle() {
         Memo memo = new Memo();
         memo.setTitle("あ".repeat(101));
         assertThrows(IllegalArgumentException.class, () -> memoService.create(memo));
     }
+
+    @Test
+    void testCreate_titleExactly100() {
+        String title100 = "a".repeat(100);
+        Memo request = new Memo(null,title100, "content", LocalDate.now());
+
+        when(memoRepository.save(any())).thenReturn(new Memo());
+
+        assertDoesNotThrow(() -> memoService.create(request));
+    }
+
 
     @Test
     void testUpdate_success() {
@@ -73,7 +94,7 @@ class MemoServiceTest {
     void testUpdate_notFound() {
         when(memoRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(NoSuchElementException.class,
                 () -> memoService.update(1L, "new", "newContent",LocalDate.now()));
 
         verify(memoRepository, never()).save(any());
@@ -81,15 +102,39 @@ class MemoServiceTest {
 
     @Test
     void testUpdate_invalidTitle_null() {
-        Memo existing = new Memo(1L, "old", "oldContent", LocalDate.now());
-        when(memoRepository.findById(1L)).thenReturn(Optional.of(existing));
-
         assertThrows(IllegalArgumentException.class,
                 () -> memoService.update(1L, null, "newContent",LocalDate.now()));
 
         verify(memoRepository, never()).save(any());
     }
 
+    @Test
+    void testUpdateTags_success() {
+
+        Memo memo = new Memo();
+        when(memoRepository.findById(1L)).thenReturn(Optional.of(memo));
+
+        List<Long> tagIds = List.of(1L, 2L);
+
+        Tag t1 = new Tag(1L, "tag1");
+        Tag t2 = new Tag(2L, "tag2");
+        when(tagRepository.findAllById(tagIds)).thenReturn(List.of(t1, t2));
+
+        memoService.updateTags(1L, tagIds);
+
+        assertEquals(List.of(t1, t2), memo.getTags());
+        verify(memoRepository).save(memo);
+    }
+
+
+    @Test
+    void testUpdateTags_notFound() {
+        when(memoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> {
+            memoService.updateTags(1L, List.of(1L));
+        });
+    }
 
     @Test
     void testDelete() {
@@ -131,6 +176,20 @@ class MemoServiceTest {
     }
 
     @Test
+    void testFilter_keywordAndDate() {
+        LocalDate date = LocalDate.of(2024, 1, 1);
+
+        when(memoRepository.findAll()).thenReturn(List.of(
+                new Memo(1L,"test","content",date)
+        ));
+
+        List<Memo> result = memoService.filter("test", date, null,LocalDate.now());
+
+        assertEquals(1, result.size());
+    }
+
+
+    @Test
     void testFilter_date() {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
@@ -170,10 +229,10 @@ class MemoServiceTest {
     @Test
     void testSortAsc() {
         List<Memo> list = List.of(
-                new Memo(1L, "b", "内容", LocalDate.now()),
-                new Memo(2L, "a", "内容", LocalDate.now())
+                new Memo(2L, "a", "内容", LocalDate.now()),
+                new Memo(1L, "b", "内容", LocalDate.now())
         );
-        when(memoRepository.findAll()).thenReturn(list);
+        when(memoRepository.findAllByOrderByIdAscWithTags()).thenReturn(list);
 
         List<Memo> result = memoService.sortAsc();
 
@@ -183,14 +242,14 @@ class MemoServiceTest {
     @Test
     void testSortDesc() {
         List<Memo> list = List.of(
-                new Memo(1L, "b", "内容", LocalDate.now()),
-                new Memo(2L, "a", "内容", LocalDate.now())
+                new Memo(2L, "a", "内容", LocalDate.now()),
+                new Memo(1L, "b", "内容", LocalDate.now())
         );
-        when(memoRepository.findAll()).thenReturn(list);
+        when(memoRepository.findAllByOrderByIdDescWithTags()).thenReturn(list);
 
         List<Memo> result = memoService.sortDesc();
 
-        assertEquals("b", result.get(0).getTitle());
+        assertEquals("a", result.get(0).getTitle());
     }
 
 }

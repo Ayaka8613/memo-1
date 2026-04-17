@@ -17,6 +17,8 @@ import com.example.demo.repository.MemoRepository;
 import com.example.demo.repository.TagRepository;
 import com.example.demo.service.MemoService;
 
+import java.time.LocalDate;
+
 @Controller
 public class MemoController {
 
@@ -32,7 +34,7 @@ public class MemoController {
     @GetMapping("/")
     public String index(
             @RequestParam(value = "filterTagIds", required = false) List<Long> filterTagIds,
-            @RequestParam(value = "keyword", required = false ) String keyword,
+            @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate,
             Model model) {
@@ -68,7 +70,7 @@ public class MemoController {
     }
 
     @GetMapping("/memo/{id}")
-    public String show(@PathVariable("id")  final Long id, Model model) {
+    public String show(@PathVariable("id") final Long id, Model model) {
         Memo memo = memoService.findById(id);
         model.addAttribute("memo", memo);
         return "show";
@@ -76,8 +78,8 @@ public class MemoController {
 
 
     @PostMapping("/memo")
-    public String create(@RequestParam ("title") String title,
-                         @RequestParam ("content") String content,
+    public String create(@RequestParam("title") String title,
+                         @RequestParam("content") String content,
                          @RequestParam(value = "tagIds", required = false) List<Long> tagIds) {
 
         Memo memo = new Memo();
@@ -98,7 +100,7 @@ public class MemoController {
     public String search(
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "startDate", required = false) String startDate,
-            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "tagName", required = false) String tagName,
             @RequestParam(value = "filterTagIds", required = false) List<Long> filterTagIds,
             Model model) {
 
@@ -106,7 +108,23 @@ public class MemoController {
             filterTagIds = new ArrayList<>();
         }
 
-        List<Memo> memos = memoService.filter(keyword, startDate, endDate, filterTagIds);
+        LocalDate start = null;
+        if (startDate != null && !startDate.isEmpty()) {
+            start = LocalDate.parse(startDate);
+        }
+
+        List<Memo> memos = memoService.filter(keyword, start, tagName, LocalDate.now());
+
+        List<Long> safeFilterTagIds =
+                (filterTagIds != null) ? filterTagIds : new ArrayList<>();
+
+        if (!filterTagIds.isEmpty()) {
+            memos = memos.stream()
+                    .filter(m -> m.getTags().stream()
+                            .anyMatch(t -> safeFilterTagIds.contains(
+                                    t.getId())))
+                    .toList();
+        }
 
         model.addAttribute("memos", memos);
         model.addAttribute("allTags", tagRepository.findAll());
@@ -121,7 +139,7 @@ public class MemoController {
     }
 
     @GetMapping("/sort")
-    public String sort(@RequestParam(name="order", required = false) String order, Model model) {
+    public String sort(@RequestParam(name = "order", required = false) String order, Model model) {
         if (order == null || order.isEmpty()) {
             model.addAttribute("memos", memoService.sortDesc());
         } else if (order.equals("asc")) {
@@ -139,9 +157,11 @@ public class MemoController {
             @PathVariable("id") Long id,
             @RequestParam("title") String title,
             @RequestParam("content") String content,
-            @RequestParam(value = "tagIds" ,required = false) List<Long> tagIds
+            @RequestParam(value = "tagIds", required = false) List<Long> tagIds,
+            @RequestParam(value = "tagName", required = false) String tagName
+
     ) {
-        memoService.update(id, title, content, tagIds);
+        memoService.update(id, title, content, LocalDate.now());
         return "redirect:/";
     }
 
